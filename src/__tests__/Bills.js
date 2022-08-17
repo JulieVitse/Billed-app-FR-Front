@@ -38,6 +38,3 @@ describe("Given I am connected as an employee", () => {
   })
 })
 
-// test github
-
-
