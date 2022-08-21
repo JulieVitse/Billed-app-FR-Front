@@ -2,13 +2,17 @@
  * @jest-environment jsdom
  */
 import "@testing-library/jest-dom"
-import {screen, waitFor} from "@testing-library/dom"
-import BillsUI from "../views/BillsUI.js"
-import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
-import {localStorageMock} from "../__mocks__/localStorage.js";
+import userEvent from '@testing-library/user-event'
+import {screen, waitFor, fireEvent} from "@testing-library/dom"
 
+import BillsUI from "../views/BillsUI.js";
+import Bills from '../containers/Bills.js';
+import { bills } from "../fixtures/bills.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
+import {localStorageMock} from "../__mocks__/localStorage.js";
+import mockStore from "../__mocks__/store";
 import router from "../app/Router.js";
+jest.mock("../app/Store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -36,5 +40,39 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
   })
+  /* -------------------- test for loading screen rendering ------------------- */
+  describe('When I am on Bills page but it is loading', () => {
+    test('Then, Loading page should be rendered', () => {
+      document.body.innerHTML = BillsUI({ loading: true })
+      expect(screen.getAllByText('Loading...')).toBeTruthy()
+    })
+  })
+
+  describe('When I click on the button to create a new bill', () => {
+    test('Then, it should open the NewBill page', () => {
+      
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      const billsContainer = new Bills({
+        document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
+      });
+
+      document.body.innerHTML = BillsUI({ data: { bills } })
+
+      const openNewBillPage = jest.fn(billsContainer.handleClickNewBill);
+      const buttonNewBill = screen.getByTestId("btn-new-bill");
+
+      buttonNewBill.addEventListener('click', openNewBillPage);
+      fireEvent.click(buttonNewBill)
+
+      expect(openNewBillPage).toHaveBeenCalled();
+      expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+
+    })
+  })
+
+
 })
 
