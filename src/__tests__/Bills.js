@@ -25,8 +25,8 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window') // récupère l'icône par son testid
-      //check si l'icône est en surbrillance - on vérifie si l'élément a la classe correspondante
-      expect(windowIcon).toHaveClass('active-icon')
+      expect(windowIcon).toHaveClass('active-icon') //check si l'icône est en surbrillance - on vérifie si l'élément a la classe correspondante
+
     })
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
