@@ -104,7 +104,8 @@ describe("Given I am connected as an employee", () => {
       userEvent.click(iconView); // simule le clic
 
       expect(openViewModal).toHaveBeenCalled(); // on s'attend à ce que la fonction ait été appellée et donc la page chargée
-      expect(screen.getAllByText('Justificatif')).toBeTruthy()
+      const modale = screen.getByTestId('modaleFileEmployee'); // on a ajouté un data-testid à la modale dans BillsUI qu'on récupère
+      expect(modale).toBeTruthy(); // on s'attend à ce que la modale soit présente
     })
   })
 
