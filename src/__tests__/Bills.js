@@ -40,36 +40,71 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
   })
-  /* -------------------- test for loading screen rendering ------------------- */
+  /* -------------------- test loading screen rendering ------------------- */
   describe('When I am on Bills page but it is loading', () => {
     test('Then, Loading page should be rendered', () => {
       document.body.innerHTML = BillsUI({ loading: true })
       expect(screen.getAllByText('Loading...')).toBeTruthy()
     })
   })
-
+  /* -------------------- test bouton nouvelle note de frais ------------------- */
   describe('When I click on the button to create a new bill', () => {
     test('Then, it should open the NewBill page', () => {
-      
+      // défini le chemin d'accès
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
 
-      const billsContainer = new Bills({
-        document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
-      });
+      //affiche les données de la page
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'employee'
+      }))
 
+      const billsContainer = new Bills({
+        document, onNavigate, store: null, bills:bills, localStorage: window.localStorage
+      })
       document.body.innerHTML = BillsUI({ data: { bills } })
 
-      const openNewBillPage = jest.fn(billsContainer.handleClickNewBill);
-      const buttonNewBill = screen.getByTestId("btn-new-bill");
+      const openNewBillPage = jest.fn(billsContainer.handleClickNewBill); // créé la fonction à tester
+      const buttonNewBill = screen.getByTestId("btn-new-bill"); // récupère le bouton nouvelle note de frais
 
-      buttonNewBill.addEventListener('click', openNewBillPage);
-      fireEvent.click(buttonNewBill)
+      buttonNewBill.addEventListener('click', openNewBillPage); // écoute l'évènement au clic
+      userEvent.click(buttonNewBill); // simule le clic
 
-      expect(openNewBillPage).toHaveBeenCalled();
-      expect(screen.getByTestId('form-new-bill')).toBeTruthy();
+      expect(openNewBillPage).toHaveBeenCalled(); // on s'attend à ce que la fonction ait été appellée et donc la page chargée
+      expect(screen.getByTestId('form-new-bill')).toBeTruthy(); // vérifie ensuite que le formulaire soit bien présent sur la page
+    })
+  })
+  /* ------------------ test bouton visualiser note de frais ------------------ */
+  describe('When I click on the eye icon', () => {
+    test('Then, it should open the modal', () => {
 
+      $.fn.modal = jest.fn(); // empêche erreur jQuery
+
+      // défini le chemin d'accès
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      // affiche les données de la page
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({ type: 'Employee' }));
+  
+      document.body.innerHTML = BillsUI({ data: bills });
+
+      const billsContainer = new Bills({
+        document, onNavigate, store: mockStore, localStorage: window.localStorage
+      });
+      // récupère l'icône oeil
+      const iconView = screen.getAllByTestId('icon-eye')[0];
+      // créé la fonction à tester
+      const openViewModal = jest.fn(billsContainer.handleClickIconEye(iconView));
+
+      iconView.addEventListener('click', openViewModal); // écoute l'évènement au clic
+      userEvent.click(iconView); // simule le clic
+
+      expect(openViewModal).toHaveBeenCalled(); // on s'attend à ce que la fonction ait été appellée et donc la page chargée
+      expect(screen.getAllByText('Justificatif')).toBeTruthy()
     })
   })
 
