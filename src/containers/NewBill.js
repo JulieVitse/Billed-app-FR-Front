@@ -24,7 +24,6 @@ export default class NewBill {
     const fileName = filePath[filePath.length-1]
 
     const fileExtension = fileName.split('.').pop(); // récupère seulement l'extension du fichier
-
     const fileFormats = ["jpg", "jpeg", "png"]; // défini formats autorisés
 
     const formData = new FormData()
@@ -32,8 +31,12 @@ export default class NewBill {
     formData.append('file', file)
     formData.append('email', email)
 
-    //si le format est bon, on créé la nouvelle note de frais
-    if (fileFormats.includes(fileExtension)) {
+    //si le format du fichier uploadé est différent des formats acceptés
+    if (!fileFormats.includes(fileExtension)) {
+      // on affiche une alerte avec un message d'erreur et on vide l'input
+      alert("Le format du fichier sélectionné est interdit. Veuillez sélectionner un fichier png, jpg ou jpeg.");
+      fileInput.value = "";
+    }
       this.store
       .bills()
       .create({
@@ -48,13 +51,6 @@ export default class NewBill {
         this.fileUrl = fileUrl
         this.fileName = fileName
       }).catch(error => console.error(error))
-    } 
-    //sinon on affiche une alerte et on vide l'input, aucune note de frais n'est créée
-    else {
-      alert("Le format du fichier sélectionné est interdit. Veuillez sélectionner un fichier png, jpg ou jpeg.");
-      fileInput.value = "";
-    }
-    
   }
 
   handleSubmit = e => {
